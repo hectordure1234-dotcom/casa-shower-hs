@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#eee7dd" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Casa Shower H&S" />
+
+  <title>Casa Shower H&S</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <main class="app">
+
+    <!-- PORTADA -->
+    <section class="hero section">
+      <div class="hero-deco hero-deco-left"></div>
+      <div class="hero-deco hero-deco-right"></div>
+
+      <div class="hero-card fade-up">
+        <p class="eyebrow">UNA NUEVA ETAPA COMIENZA</p>
+
+        <div class="monogram">
+          <span>H</span>
+          <span class="amp">&</span>
+          <span>S</span>
+        </div>
+
+        <div class="divider">
+          <span></span>
+          <div class="house-icon">⌂</div>
+          <span></span>
+        </div>
+
+        <h1>Casa Shower</h1>
+
+        <p class="hero-text">
+          Estamos preparando algo muy especial y queremos compartirlo contigo.
+        </p>
+
+        <button class="scroll-btn" onclick="scrollToInvite()" aria-label="Ver invitación">
+          <span>DESCUBRIR</span>
+          <span class="arrow">⌄</span>
+        </button>
+      </div>
+    </section>
+
+
+    <!-- MENSAJE -->
+    <section class="section intro" id="invitacion">
+      <div class="content-card reveal">
+        <span class="mini-house">⌂</span>
+
+        <p class="script-small">Nuestro hogar</p>
+
+        <h2>está comenzando una nueva historia</h2>
+
+        <p class="body-text">
+          Queremos celebrar este nuevo comienzo junto a las personas que forman
+          parte de nuestra historia.
+        </p>
+
+        <div class="quote">
+          Una casa se construye con paredes.<br />
+          Un hogar, con momentos compartidos.
+        </div>
+      </div>
+    </section>
+
+
+    <!-- FECHA SECRETA -->
+    <section class="section secret-section">
+      <div class="section-heading reveal">
+        <p class="eyebrow">GUARDA ESTA INVITACIÓN</p>
+        <h2>Algo especial se acerca</h2>
+      </div>
+
+      <div class="secret-grid reveal">
+        <article class="secret-card">
+          <div class="icon-circle">◷</div>
+          <span class="secret-label">FECHA</span>
+          <strong class="secret-value" id="fechaEvento">•• / •• / ••••</strong>
+          <span class="locked" id="estadoFecha">🔒 Próximamente</span>
+        </article>
+
+        <article class="secret-card">
+          <div class="icon-circle">⌚</div>
+          <span class="secret-label">HORA</span>
+          <strong class="secret-value" id="horaEvento">•• : ••</strong>
+          <span class="locked" id="estadoHora">🔒 Aún es un secreto</span>
+        </article>
+      </div>
+
+      <div class="mystery reveal" id="mysteryBox">
+        <div class="spark">✦</div>
+        <p>Muy pronto revelaremos todos los detalles.</p>
+      </div>
+    </section>
+
+
+    <!-- CONTADOR -->
+    <section class="section countdown-section" id="countdownSection">
+      <div class="content-card reveal">
+        <p class="eyebrow">CUENTA REGRESIVA</p>
+        <h2 id="countdownTitle">El momento llegará...</h2>
+
+        <div class="countdown locked-countdown" id="countdown">
+          <div>
+            <strong id="days">••</strong>
+            <span>Días</span>
+          </div>
+          <div>
+            <strong id="hours">••</strong>
+            <span>Horas</span>
+          </div>
+          <div>
+            <strong id="minutes">••</strong>
+            <span>Min</span>
+          </div>
+          <div>
+            <strong id="seconds">••</strong>
+            <span>Seg</span>
+          </div>
+        </div>
+
+        <p class="countdown-note" id="countdownNote">
+          La cuenta regresiva aparecerá cuando revelemos la fecha.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- DETALLE VISUAL -->
+    <section class="section home-section">
+      <div class="home-illustration reveal">
+        <div class="roof"></div>
+        <div class="house-body">
+          <div class="window"></div>
+          <div class="door"></div>
+          <div class="window"></div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <p class="eyebrow">CASA SHOWER H&S</p>
+        <h2>Un nuevo espacio.<br />Nuevos recuerdos.</h2>
+        <p class="body-text">
+          Este será un encuentro para celebrar lo que viene y agradecer a quienes
+          forman parte de este nuevo comienzo.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- UBICACION FUTURA -->
+    <section class="section details-section">
+      <div class="detail-card reveal">
+        <span class="detail-icon">⌖</span>
+        <div>
+          <p class="eyebrow">UBICACIÓN</p>
+          <h3 id="locationTitle">También es parte del secreto</h3>
+          <p id="locationText">
+            La dirección será revelada junto con los demás detalles.
+          </p>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- FINAL -->
+    <section class="section closing">
+      <div class="closing-card reveal">
+        <div class="small-line"></div>
+
+        <p class="eyebrow">CON CARIÑO</p>
+
+        <div class="closing-monogram">
+          H <span>&</span> S
+        </div>
+
+        <p class="closing-message">
+          Gracias por acompañarnos en esta nueva etapa.
+        </p>
+
+        <p class="save-message">
+          Conserva este enlace.<br />
+          La invitación se actualizará cuando llegue el momento.
+        </p>
+
+        <div class="small-line"></div>
+      </div>
+
+      <footer>
+        Casa Shower H&S · 2026
+      </footer>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
