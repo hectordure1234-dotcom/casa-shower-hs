@@ -175,6 +175,72 @@
     </section>
 
 
+
+
+    <!-- CONFIRMACIÓN DE ASISTENCIA -->
+    <section class="section rsvp-section" id="confirmacion">
+      <div class="content-card reveal">
+        <p class="eyebrow">CONFIRMACIÓN</p>
+        <h2>¿Nos acompañas?</h2>
+        <p class="body-text">
+          Confirma tu presencia directamente desde esta invitación.
+        </p>
+
+        <form id="rsvpForm" class="form-card">
+          <label>
+            Nombre y apellido
+            <input type="text" id="rsvpNombre" required maxlength="80" placeholder="Tu nombre" />
+          </label>
+
+          <label>
+            ¿Asistirás?
+            <select id="rsvpEstado" required>
+              <option value="">Seleccionar</option>
+              <option value="SI">Sí, estaré presente</option>
+              <option value="NO">No podré asistir</option>
+            </select>
+          </label>
+
+          <label>
+            Cantidad de personas
+            <select id="rsvpCantidad">
+              <option value="1">1 persona</option>
+              <option value="2">2 personas</option>
+              <option value="3">3 personas</option>
+              <option value="4">4 personas</option>
+              <option value="5">5 personas</option>
+            </select>
+          </label>
+
+          <label>
+            Mensaje <span class="optional">(opcional)</span>
+            <textarea id="rsvpMensaje" rows="3" maxlength="200" placeholder="Puedes dejarnos un mensaje"></textarea>
+          </label>
+
+          <button class="primary-btn" type="submit" id="btnRsvp">
+            Confirmar asistencia
+          </button>
+
+          <p class="form-status" id="rsvpStatus"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- LISTA DE REGALOS -->
+    <section class="section gifts-section">
+      <div class="content-card reveal">
+        <p class="eyebrow">LISTA DE REGALOS</p>
+        <h2>Detalles para nuestro nuevo hogar</h2>
+        <p class="body-text">
+          Si deseas hacernos un regalo, puedes elegir uno de la lista.
+          Cuando alguien lo reserve quedará marcado para evitar duplicados.
+        </p>
+
+        <div id="giftList" class="gift-list"></div>
+        <p class="form-status" id="giftStatus"></p>
+      </div>
+    </section>
+
     <!-- FINAL -->
     <section class="section closing">
       <div class="closing-card reveal">
@@ -204,6 +270,30 @@
     </section>
 
   </main>
+
+
+
+  <!-- MODAL RESERVA DE REGALO -->
+  <div class="modal" id="giftModal" aria-hidden="true">
+    <div class="modal-card">
+      <button class="modal-close" type="button" onclick="closeGiftModal()">×</button>
+      <p class="eyebrow">RESERVAR REGALO</p>
+      <h3 id="modalGiftName"></h3>
+
+      <input type="hidden" id="modalGiftId" />
+
+      <label>
+        Tu nombre
+        <input type="text" id="giftGuestName" maxlength="80" placeholder="Nombre y apellido" />
+      </label>
+
+      <button class="primary-btn" type="button" onclick="confirmGiftReservation()">
+        Reservar este regalo
+      </button>
+
+      <p class="form-status" id="giftModalStatus"></p>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
