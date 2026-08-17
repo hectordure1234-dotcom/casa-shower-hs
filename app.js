@@ -155,7 +155,6 @@ configurarUbicacion();
 
 let REGALOS = [];
 
-let giftState = {};
 
 async function apiPost(payload) {
   const response = await fetch(EVENTO.apiUrl, {
