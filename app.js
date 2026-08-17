@@ -27,7 +27,9 @@ const EVENTO = {
   revelarUbicacion: false,
   lugar: "",
   direccion: "",
-  mapsUrl: ""
+  mapsUrl: "",
+
+  apiUrl: "https://script.google.com/macros/s/AKfycbz9QIQ7EOY_Upf61Nzq80uobw1KuVj4Ten2TgLaxl3umxD2vWMlkFUGLPl6ubDW1qpI/exec"
 };
 
 
@@ -145,3 +147,210 @@ document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
 
 revelarDatos();
 configurarUbicacion();
+
+
+// =========================================================
+// CONFIRMACIÓN DE ASISTENCIA + LISTA DE REGALOS
+// =========================================================
+
+const REGALOS = [
+  { id: "R001", nombre: "Juego de Asador", categoria: "Cocina" },
+  { id: "R002", nombre: "Parrilla", categoria: "Cocina" },
+  { id: "R003", nombre: "Juego de Ollas", categoria: "Cocina" },
+  { id: "R004", nombre: "Juego de Bandejas", categoria: "Cocina" },
+  { id: "R005", nombre: "Manteles", categoria: "Cocina" },
+  { id: "R006", nombre: "Cortinas", categoria: "Baño" },
+  { id: "R007", nombre: "Sábanas", categoria: "Dormitorio" },
+  { id: "R008", nombre: "Juego de Plato hondo", categoria: "Cocina" },
+  { id: "R009", nombre: "Pava", categoria: "Cocina" },
+  { id: "R010", nombre: "Sartén", categoria: "Cocina" },
+  { id: "R011", nombre: "Juego de Toallas", categoria: "Baño" },
+  { id: "R012", nombre: "Espejos", categoria: "Baño" }
+];
+
+let giftState = {};
+
+async function apiPost(payload) {
+  const response = await fetch(EVENTO.apiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  return await response.json();
+}
+
+async function apiGet(action) {
+  const response = await fetch(
+    `${EVENTO.apiUrl}?action=${encodeURIComponent(action)}&_=${Date.now()}`
+  );
+
+  return await response.json();
+}
+
+const rsvpForm = document.getElementById("rsvpForm");
+
+if (rsvpForm) {
+  rsvpForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const nombre = document.getElementById("rsvpNombre").value.trim();
+    const estado = document.getElementById("rsvpEstado").value;
+    const cantidad = document.getElementById("rsvpCantidad").value;
+    const mensaje = document.getElementById("rsvpMensaje").value.trim();
+
+    const btn = document.getElementById("btnRsvp");
+    const status = document.getElementById("rsvpStatus");
+
+    if (!nombre || !estado) {
+      status.textContent = "Completa tu nombre y confirma si asistirás.";
+      return;
+    }
+
+    btn.disabled = true;
+    status.textContent = "Guardando confirmación...";
+
+    try {
+      const result = await apiPost({
+        action: "rsvp",
+        nombre,
+        estado,
+        cantidad,
+        mensaje
+      });
+
+      if (!result.ok) {
+        throw new Error(result.error || "ERROR");
+      }
+
+      status.textContent = "✓ Tu respuesta quedó registrada. ¡Gracias!";
+      rsvpForm.reset();
+
+    } catch (error) {
+      status.textContent =
+        "No pudimos guardar tu confirmación. Intenta nuevamente.";
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+function renderGifts() {
+  const container = document.getElementById("giftList");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  REGALOS.forEach((regalo) => {
+    const reservado = !!giftState[regalo.id];
+
+    const card = document.createElement("article");
+    card.className = `gift-card${reservado ? " reserved" : ""}`;
+
+    card.innerHTML = `
+      <div>
+        <div class="gift-name">${regalo.nombre}</div>
+        <div class="gift-category">${regalo.categoria}</div>
+      </div>
+
+      <button
+        class="gift-btn"
+        ${reservado ? "disabled" : ""}
+        onclick="openGiftModal('${regalo.id}')"
+      >
+        ${reservado ? "Reservado" : "Reservar"}
+      </button>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+async function loadGiftState() {
+  const status = document.getElementById("giftStatus");
+
+  try {
+    const result = await apiGet("regalos");
+
+    if (result.ok) {
+      giftState = result.reservados || {};
+      if (status) status.textContent = "";
+    } else {
+      if (status) {
+        status.textContent = "No se pudo consultar el estado de los regalos.";
+      }
+    }
+  } catch (error) {
+    if (status) {
+      status.textContent = "No se pudo conectar con la lista de regalos.";
+    }
+  }
+
+  renderGifts();
+}
+
+function openGiftModal(id) {
+  const regalo = REGALOS.find((item) => item.id === id);
+
+  if (!regalo || giftState[id]) return;
+
+  document.getElementById("modalGiftId").value = id;
+  document.getElementById("modalGiftName").textContent = regalo.nombre;
+  document.getElementById("giftGuestName").value = "";
+  document.getElementById("giftModalStatus").textContent = "";
+
+  document.getElementById("giftModal").classList.add("open");
+}
+
+function closeGiftModal() {
+  document.getElementById("giftModal").classList.remove("open");
+}
+
+async function confirmGiftReservation() {
+  const id = document.getElementById("modalGiftId").value;
+  const nombre = document.getElementById("giftGuestName").value.trim();
+  const status = document.getElementById("giftModalStatus");
+
+  if (!nombre) {
+    status.textContent = "Escribe tu nombre.";
+    return;
+  }
+
+  status.textContent = "Reservando...";
+
+  try {
+    const result = await apiPost({
+      action: "reservar_regalo",
+      regaloId: id,
+      nombre
+    });
+
+    if (!result.ok) {
+      throw new Error(result.error || "ERROR");
+    }
+
+    giftState[id] = true;
+    renderGifts();
+
+    status.textContent = "✓ Regalo reservado correctamente.";
+
+    setTimeout(() => {
+      closeGiftModal();
+    }, 900);
+
+  } catch (error) {
+    status.textContent =
+      error.message === "YA_RESERVADO"
+        ? "Ese regalo ya fue reservado por otra persona."
+        : "No pudimos reservar el regalo. Intenta nuevamente.";
+
+    await loadGiftState();
+  }
+}
+
+renderGifts();
+loadGiftState();
+
