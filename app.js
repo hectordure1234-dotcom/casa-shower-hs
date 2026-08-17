@@ -153,20 +153,7 @@ configurarUbicacion();
 // CONFIRMACIÓN DE ASISTENCIA + LISTA DE REGALOS
 // =========================================================
 
-const REGALOS = [
-  { id: "R001", nombre: "Juego de Asador", categoria: "Cocina" },
-  { id: "R002", nombre: "Parrilla", categoria: "Cocina" },
-  { id: "R003", nombre: "Juego de Ollas", categoria: "Cocina" },
-  { id: "R004", nombre: "Juego de Bandejas", categoria: "Cocina" },
-  { id: "R005", nombre: "Manteles", categoria: "Cocina" },
-  { id: "R006", nombre: "Cortinas", categoria: "Baño" },
-  { id: "R007", nombre: "Sábanas", categoria: "Dormitorio" },
-  { id: "R008", nombre: "Juego de Plato hondo", categoria: "Cocina" },
-  { id: "R009", nombre: "Pava", categoria: "Cocina" },
-  { id: "R010", nombre: "Sartén", categoria: "Cocina" },
-  { id: "R011", nombre: "Juego de Toallas", categoria: "Baño" },
-  { id: "R012", nombre: "Espejos", categoria: "Baño" }
-];
+let REGALOS = [];
 
 let giftState = {};
 
@@ -238,6 +225,7 @@ if (rsvpForm) {
 }
 
 function renderGifts() {
+
   const container = document.getElementById("giftList");
 
   if (!container) return;
@@ -245,23 +233,29 @@ function renderGifts() {
   container.innerHTML = "";
 
   REGALOS.forEach((regalo) => {
-    const reservado = !!giftState[regalo.id];
 
     const card = document.createElement("article");
-    card.className = `gift-card${reservado ? " reserved" : ""}`;
+
+    card.className =
+      `gift-card${regalo.reservado ? " reserved" : ""}`;
 
     card.innerHTML = `
       <div>
-        <div class="gift-name">${regalo.nombre}</div>
-        <div class="gift-category">${regalo.categoria}</div>
+        <div class="gift-name">
+          ${regalo.nombre}
+        </div>
+
+        <div class="gift-category">
+          ${regalo.categoria}
+        </div>
       </div>
 
       <button
         class="gift-btn"
-        ${reservado ? "disabled" : ""}
+        ${regalo.reservado ? "disabled" : ""}
         onclick="openGiftModal('${regalo.id}')"
       >
-        ${reservado ? "Reservado" : "Reservar"}
+        ${regalo.reservado ? "Reservado" : "Reservar"}
       </button>
     `;
 
@@ -270,23 +264,39 @@ function renderGifts() {
 }
 
 async function loadGiftState() {
+
   const status = document.getElementById("giftStatus");
 
   try {
+
     const result = await apiGet("regalos");
 
     if (result.ok) {
-      giftState = result.reservados || {};
-      if (status) status.textContent = "";
-    } else {
+
+      REGALOS = result.regalos || [];
+
       if (status) {
-        status.textContent = "No se pudo consultar el estado de los regalos.";
+        status.textContent = "";
       }
+
+    } else {
+
+      if (status) {
+        status.textContent =
+          "No se pudo consultar la lista de regalos.";
+      }
+
     }
+
   } catch (error) {
+
+    console.error(error);
+
     if (status) {
-      status.textContent = "No se pudo conectar con la lista de regalos.";
+      status.textContent =
+        "No se pudo conectar con la lista de regalos.";
     }
+
   }
 
   renderGifts();
@@ -295,7 +305,7 @@ async function loadGiftState() {
 function openGiftModal(id) {
   const regalo = REGALOS.find((item) => item.id === id);
 
-  if (!regalo || giftState[id]) return;
+  if (!regalo || regalo.reservado) return;
 
   document.getElementById("modalGiftId").value = id;
   document.getElementById("modalGiftName").textContent = regalo.nombre;
@@ -310,6 +320,7 @@ function closeGiftModal() {
 }
 
 async function confirmGiftReservation() {
+
   const id = document.getElementById("modalGiftId").value;
   const nombre = document.getElementById("giftGuestName").value.trim();
   const status = document.getElementById("giftModalStatus");
@@ -322,18 +333,20 @@ async function confirmGiftReservation() {
   status.textContent = "Reservando...";
 
   try {
+
     const result = await apiPost({
       action: "reservar_regalo",
       regaloId: id,
-      nombre
+      nombre: nombre
     });
 
     if (!result.ok) {
       throw new Error(result.error || "ERROR");
     }
 
-    giftState[id] = true;
-    renderGifts();
+    // Vuelve a consultar Google Sheets
+    // para actualizar toda la lista de regalos
+    await loadGiftState();
 
     status.textContent = "✓ Regalo reservado correctamente.";
 
@@ -342,11 +355,14 @@ async function confirmGiftReservation() {
     }, 900);
 
   } catch (error) {
+
     status.textContent =
       error.message === "YA_RESERVADO"
         ? "Ese regalo ya fue reservado por otra persona."
         : "No pudimos reservar el regalo. Intenta nuevamente.";
 
+    // Actualiza la lista por si otra persona
+    // reservó el regalo al mismo tiempo
     await loadGiftState();
   }
 }
